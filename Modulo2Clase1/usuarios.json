@@ -1,0 +1,24 @@
+{
+    "juan23": {
+        "nombre": "Juan P\u00e9rez",
+        "edad": 30,
+        "amigos": [
+            "lore89",
+            "mike91"
+        ]
+    },
+    "lore89": {
+        "nombre": "Lorena D\u00edaz",
+        "edad": 27,
+        "amigos": [
+            "juan23"
+        ]
+    },
+    "mike91": {
+        "nombre": "Miguel Torres",
+        "edad": 32,
+        "amigos": [
+            "juan23"
+        ]
+    }
+}
