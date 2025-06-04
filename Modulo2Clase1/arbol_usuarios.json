@@ -1,0 +1,17 @@
+{
+    "tipo": "Administrador",
+    "izquierda": {
+        "tipo": "Moderador",
+        "izquierda": {
+            "tipo": "Usuario registrado",
+            "izquierda": null,
+            "derecha": null
+        },
+        "derecha": null
+    },
+    "derecha": {
+        "tipo": "Invitado",
+        "izquierda": null,
+        "derecha": null
+    }
+}

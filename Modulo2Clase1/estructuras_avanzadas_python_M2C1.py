@@ -1,5 +1,6 @@
 import pprint
 from utils import *
+from utils_tree import NodoBasico, guardar_arbol_en_json, imprimir_arbol_simple
 
 # -----------------------------
 # 🔄 Inicialización de estructuras con persistencia
@@ -81,3 +82,24 @@ print("\nHistorial de actividades:", historial_actividades)
 print("\nÚltima actividad removida:", ultima_actividad)
 print("\nSolicitudes de amistad:", solicitudes_amistad)
 print("\nSolicitud procesada:", solicitud_procesada)
+
+# -----------------------------
+# 🧪 Prueba de Árbol Binario de Usuarios
+# -----------------------------
+# Crear nodos manualmente (sin lógica de inserción avanzada)
+raiz = NodoBasico("Administrador")
+raiz.izquierda = NodoBasico("Moderador")
+raiz.derecha = NodoBasico("Invitado")
+raiz.izquierda.izquierda = NodoBasico("Usuario registrado")
+
+# -----------------------------
+# 🧪 Mostrar jerarquía simple
+# -----------------------------
+print("🌳 Jerarquía de tipos de usuario (versión simple):")
+imprimir_arbol_simple(raiz)
+
+# -----------------------------
+# 💾 Guardar árbol en JSON
+# -----------------------------
+guardar_arbol_en_json(raiz)
+print("✅ Árbol guardado como 'arbol_usuarios.json'")
