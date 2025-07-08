@@ -1,0 +1,19 @@
+name: especialidadmachinelearning
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy=1.23.5
+  - numba=0.56.4
+  - matplotlib
+  - nbformat
+  - sympy
+  - scipy
+  - pip
+  - pip:
+      - tqdm
+      - scikit-learn
+      - pandas
+      - seaborn
+      - pytest

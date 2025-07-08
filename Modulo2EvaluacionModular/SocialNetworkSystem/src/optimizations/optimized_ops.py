@@ -3,7 +3,6 @@
 import numpy as np
 from numba import jit
 
-
 def calcular_amigos_en_comun(user_friends, target_friends):
     """
     Calcula amigos en común usando operaciones vectorizadas.
@@ -18,7 +17,7 @@ def calcular_amigos_en_comun(user_friends, target_friends):
     return len(set(user_friends).intersection(set(target_friends)))
 
 
-@jit(nopython=True)
+@jit(nopython=True, cache=True)
 def calcular_amigos_en_comun_numba(arr1, arr2):
     """
     Calcula amigos en común usando Numba para acelerar en listas grandes.
@@ -48,4 +47,5 @@ def convertir_amigos_a_numpy(friend_dict):
     Returns:
         dict[str, np.ndarray]: Diccionario {usuario: np.array(amigos)}
     """
-    return {user: np.array(friends, dtype=np.int32) for user, friends in friend_dict.items()}
+    return {user: np.array(friends) for user, friends in friend_dict.items()}
+

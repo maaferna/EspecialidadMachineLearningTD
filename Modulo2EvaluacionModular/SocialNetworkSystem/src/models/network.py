@@ -1,5 +1,5 @@
-from src.models.user import Usuario
-from src.utils.exceptions import UsuarioExistenteError, UsuarioNoEncontradoError
+from models.user import Usuario
+from utils.exceptions import UsuarioExistenteError, UsuarioNoEncontradoError
 
 
 class RedSocial:

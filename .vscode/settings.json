@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./Modulo2Clase1"
+        "./Modulo2Clase1",
+        "./Modulo3Clase2/src"
     ]
 }

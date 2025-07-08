@@ -1,8 +1,8 @@
 # Implementación del algoritmo de búsqueda en anchura (BFS) para sugerencias de amistad 
 # en una red social, utilizando POO y principios SOLID.
 # Algoritmo de sugerencia de amistad usando BFS
-from src.models.user import Usuario
-from src.models.network import RedSocial
+from models.user import Usuario
+from models.network import RedSocial
 from collections import deque
 
 
@@ -16,6 +16,11 @@ def sugerencias_amistad(red_social, nombre_usuario, max_sugerencias=3):
         raise ValueError(f"El usuario '{nombre_usuario}' no existe en la red.")
 
     usuario_origen = red_social.usuarios[nombre_usuario]
+
+    '''
+    Explorar amigos de un usuario (usuario_origen) en niveles (1er grado, 2do grado...) 
+    y sugerir nuevos amigos (usuarios conectados a amigos pero no conectados directamente al usuario origen).
+    '''
     visitados = set()
     sugerencias = set()
     cola = deque([(usuario_origen, 0)])  # usuario y nivel
