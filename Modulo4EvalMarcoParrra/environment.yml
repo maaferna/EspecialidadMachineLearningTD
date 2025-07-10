@@ -1,0 +1,20 @@
+name: especialidadmachinelearning
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - pip
+  - pip:
+      - scikit-optimize
+      - hyperopt
+      - optuna
+      - deap
+      - nbformat
+      - pytest
+      - ray[tune]
