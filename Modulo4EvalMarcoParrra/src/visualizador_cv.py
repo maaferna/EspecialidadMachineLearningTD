@@ -15,8 +15,8 @@ def visualizar_matriz_confusion(y_true, y_pred, metodo="Modelo"):
     ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
     plt.title(f"Matriz de Confusión - {metodo}")
     plt.tight_layout()
-    os.makedirs("outputs", exist_ok=True)
-    plt.savefig(f"outputs/matriz_confusion_{metodo.lower()}.png")
+    os.makedirs("outputs_cv", exist_ok=True)
+    plt.savefig(f"outputs_cv/matriz_confusion_{metodo.lower()}.png")
     plt.show()
 
 
@@ -123,6 +123,6 @@ def graficar_metricas_comparativas(resultados):
     plt.legend(title="Métrica", loc="lower right")
     plt.tight_layout()
 
-    os.makedirs("outputs", exist_ok=True)
-    plt.savefig("outputs/comparacion_metricas_modelos.png")
+    os.makedirs("outputs_cv", exist_ok=True)
+    plt.savefig("outputs_cv/comparacion_metricas_modelos.png")
     plt.show()

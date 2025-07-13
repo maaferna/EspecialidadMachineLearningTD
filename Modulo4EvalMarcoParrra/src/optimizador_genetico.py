@@ -1,16 +1,17 @@
 import random
 import numpy as np
+import time
 from deap import base, creator, tools
 from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
 from src.modelos import crear_modelo_random_forest
 from src.evaluador import evaluar_modelo
-import time
 
-# Fijar semillas para reproducibilidad
+# Reproducibilidad
 random.seed(42)
 np.random.seed(42)
 
-# Crear tipos solo si no existen
+# Crear tipos si no existen
 if not hasattr(creator, "FitnessMax"):
     creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 if not hasattr(creator, "Individual"):
@@ -19,7 +20,7 @@ if not hasattr(creator, "Individual"):
 
 def evaluar_individuo(individuo, X, y):
     """
-    Evalúa un individuo con cross-validation F1-score.
+    Evalúa un individuo con validación cruzada usando F1 macro.
     """
     n_estimators, max_depth, min_samples_split = individuo
     modelo = crear_modelo_random_forest(
@@ -27,21 +28,20 @@ def evaluar_individuo(individuo, X, y):
         max_depth=max_depth,
         min_samples_split=min_samples_split
     )
-    scores = cross_val_score(modelo, X, y, cv=3, scoring="f1", n_jobs=-1)
+    scores = cross_val_score(modelo, X, y, cv=3, scoring="f1_macro", n_jobs=-1)
     return (scores.mean(),)
 
 
 def optimizar_con_genetico(X_train, y_train, X_test, y_test, n_generaciones, tuned_params):
     """
-    Ejecuta un algoritmo genético para encontrar los mejores hiperparámetros.
+    Optimización de hiperparámetros con Algoritmo Genético.
     """
     if tuned_params is None:
         raise ValueError("tuned_params no puede ser None.")
 
     print("\n🧬 Optimizando con Algoritmo Genético...")
 
-    # Definir población mínima razonable
-    pop_size = 40
+    pop_size = 40  # Población base
 
     toolbox = base.Toolbox()
     toolbox.register("n_estimators", random.choice, tuned_params["n_estimators"])
@@ -103,8 +103,6 @@ def optimizar_con_genetico(X_train, y_train, X_test, y_test, n_generaciones, tun
         min_samples_split=best_params[2]
     )
     best_model.fit(X_train, y_train)
-    y_pred = best_model.predict(X_test)
-    y_prob = best_model.predict_proba(X_test)[:, 1]
 
     return evaluar_modelo(
         "Genetico",

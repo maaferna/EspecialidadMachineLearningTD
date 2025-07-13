@@ -5,15 +5,14 @@ project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
 from src.optimizador_ray import optimizar_con_raytune
-from src.utils import cargar_datos_breast_cancer, preprocesar_datos
+from src.utils import preprocesar_datos, cargar_datos, p
 from src.modelos import entrenar_modelo_base
-from src.evaluador import evaluar_modelo
 from src.optimizador import (
     optimizar_con_gridsearch,
     optimizar_con_randomsearch,
 )
 from src.optimizador_optuna import optimizar_con_optuna
-from src.optimizador_skopt import optimizar_con_skopt
+from src.optimizador_skopt import optimizar_con_hyperopt, optimizar_con_skopt
 from src.optimizador_genetico import optimizar_con_genetico
 from src.visualizador import (
     visualizar_matriz_confusion,
@@ -31,9 +30,16 @@ tuned_params = {
 }
 
 if __name__ == "__main__":
-    df = cargar_datos_breast_cancer()
-    X_train, X_test, y_train, y_test = preprocesar_datos(df)
+    df = cargar_datos()
+    X_train, X_test, y_train, y_test, label_encoder = preprocesar_datos(df)
+
     resultados = []
+
+    # Ray Tune
+    resultado_ray = optimizar_con_raytune(X_train, y_train, X_test, y_test, NUM_TRIALS,  tuned_params)
+    resultados.append(resultado_ray)
+    visualizar_matriz_confusion(y_test, resultado_ray["y_pred"], metodo="RayTune")
+    visualizar_curva_roc(y_test, resultado_ray["y_prob"], metodo="RayTune")
 
     # Base
     resultado_base = entrenar_modelo_base(X_train, y_train, X_test, y_test)
@@ -73,11 +79,14 @@ if __name__ == "__main__":
     visualizar_matriz_confusion(y_test, resultado_skopt["y_pred"], metodo="Skopt")
     visualizar_curva_roc(y_test, resultado_skopt["y_prob"], metodo="Skopt")
 
-    # Ray Tune
-    resultado_ray = optimizar_con_raytune(X_train, y_train, X_test, y_test, NUM_TRIALS, tuned_params)
-    resultados.append(resultado_ray)
-    visualizar_matriz_confusion(y_test, resultado_ray["y_pred"], metodo="RayTune")
-    visualizar_curva_roc(y_test, resultado_ray["y_prob"], metodo="RayTune")
+    # Hyperopt
+    resultado_hyperopt = optimizar_con_hyperopt(
+        X_train, y_train, X_test, y_test,  NUM_TRIALS, tuned_params)
+    resultados.append(resultado_hyperopt)
+    visualizar_matriz_confusion(y_test, resultado_hyperopt["y_pred"], metodo="Hyperopt")
+    visualizar_curva_roc(y_test, resultado_hyperopt["y_prob"], metodo="Hyperopt")
+
+
 
 
     graficar_metricas_comparativas(resultados)

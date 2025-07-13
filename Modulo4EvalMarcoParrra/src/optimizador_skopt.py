@@ -19,9 +19,13 @@ from src.evaluador import evaluar_modelo
 from src.modelos import crear_modelo_random_forest
 
 
-def optimizar_con_skopt(X_train, y_train, X_test, y_test, tuned_params, n_trials):
+
+
+
+def optimizar_con_skopt(X_train, y_train, X_test, y_test, n_trials, tuned_params):
     """
     Optimiza hiperparámetros con Bayesian Optimization (skopt).
+    Adaptado para clasificación multiclase.
     """
     print("\n🧠 Optimizando con BayesSearchCV (skopt)...")
     start = time.time()
@@ -32,7 +36,7 @@ def optimizar_con_skopt(X_train, y_train, X_test, y_test, tuned_params, n_trials
         search_spaces=tuned_params,
         n_iter=n_trials,
         cv=3,
-        scoring="f1",
+        scoring="f1_macro",  # ✅ clave para multiclase
         n_jobs=-1,
         random_state=42,
     )
@@ -52,10 +56,10 @@ def optimizar_con_skopt(X_train, y_train, X_test, y_test, tuned_params, n_trials
 
 
 
-
-def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, tuned_params, n_trials):
+def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, n_trials, tuned_params):
     """
     Optimiza hiperparámetros usando Hyperopt y RandomForestClassifier.
+    Adaptado a clasificación multiclase.
     """
     print("\n🧬 Optimizando con Hyperopt...")
 
@@ -70,7 +74,14 @@ def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, tuned_params, n_tri
 
     def objective(params):
         model = crear_modelo_random_forest(**params)
-        f1 = cross_val_score(model, X_train, y_train, cv=3, scoring="f1", n_jobs=-1).mean()
+        f1 = cross_val_score(
+            model,
+            X_train,
+            y_train,
+            cv=3,
+            scoring="f1_macro",  # ✅ multiclase
+            n_jobs=-1,
+        ).mean()
         scores_evolucion.append(f1)
         return {"loss": -f1, "status": STATUS_OK}
 

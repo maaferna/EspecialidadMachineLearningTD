@@ -1,27 +1,15 @@
-
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, f1_score
-from skopt import BayesSearchCV
-from skopt.space import Integer
 import time
+import numpy as np
+from skopt import BayesSearchCV
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 from sklearn.model_selection import cross_val_score
-import numpy as np
 
-
-from skopt import BayesSearchCV
-from sklearn.ensemble import RandomForestClassifier
-import time
-from src.evaluador import evaluar_modelo
+from src.evaluador import evaluar_modelo_cv
 from src.modelos import crear_modelo_random_forest
 
-
-def optimizar_con_skopt(X_train, y_train, X_test, y_test, n_trials, tuned_params):
+def optimizar_con_skopt_cv(X_train, y_train, n_trials, tuned_params):
     """
-    Optimiza hiperparámetros con Bayesian Optimization (skopt).
+    Optimiza hiperparámetros con Bayesian Optimization (skopt) usando validación cruzada.
     """
     print("\n🧠 Optimizando con BayesSearchCV (skopt)...")
     start = time.time()
@@ -41,27 +29,22 @@ def optimizar_con_skopt(X_train, y_train, X_test, y_test, n_trials, tuned_params
     end = time.time()
 
     print("✅ Mejores parámetros skopt:", bayes.best_params_)
-    return evaluar_modelo(
+    return evaluar_modelo_cv(
         "Skopt",
         bayes.best_estimator_,
-        X_test,
-        y_test,
+        X_train,
+        y_train,
         end - start,
         bayes.best_params_,
     )
 
-
-
-
-def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, n_trials, tuned_params):
+def optimizar_con_hyperopt_cv(X_train, y_train, n_trials, tuned_params):
     """
-    Optimiza hiperparámetros usando Hyperopt y RandomForestClassifier.
+    Optimiza hiperparámetros usando Hyperopt y validación cruzada con F1 macro.
     """
     print("\n🧬 Optimizando con Hyperopt...")
-
     scores_evolucion = []
 
-    # Convertir espacio de búsqueda al formato de Hyperopt
     space = {
         "n_estimators": hp.choice("n_estimators", tuned_params["n_estimators"]),
         "max_depth": hp.choice("max_depth", tuned_params["max_depth"]),
@@ -70,7 +53,14 @@ def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, n_trials, tuned_par
 
     def objective(params):
         model = crear_modelo_random_forest(**params)
-        f1 = cross_val_score(model, X_train, y_train, cv=3, scoring="f1_macro", n_jobs=-1).mean()
+        f1 = cross_val_score(
+            model,
+            X_train,
+            y_train,
+            cv=3,
+            scoring="f1_macro",
+            n_jobs=-1,
+        ).mean()
         scores_evolucion.append(f1)
         return {"loss": -f1, "status": STATUS_OK}
 
@@ -87,7 +77,6 @@ def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, n_trials, tuned_par
     )
     end = time.time()
 
-    # Reconstruir mejores parámetros desde índices elegidos
     best_params = {
         "n_estimators": tuned_params["n_estimators"][best["n_estimators"]],
         "max_depth": tuned_params["max_depth"][best["max_depth"]],
@@ -99,11 +88,11 @@ def optimizar_con_hyperopt(X_train, y_train, X_test, y_test, n_trials, tuned_par
     best_model = crear_modelo_random_forest(**best_params)
     best_model.fit(X_train, y_train)
 
-    return evaluar_modelo(
+    return evaluar_modelo_cv(
         "Hyperopt",
         best_model,
-        X_test,
-        y_test,
+        X_train,
+        y_train,
         end - start,
         best_params,
     )

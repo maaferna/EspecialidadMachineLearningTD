@@ -13,7 +13,7 @@ def optimizar_con_gridsearch(X_train, y_train, X_test, y_test, tuned_params):
     start = time.time()
     model = crear_modelo_random_forest()
     grid = GridSearchCV(
-        model, tuned_params, cv=3, scoring="f1", n_jobs=-1
+        model, tuned_params, cv=3, scoring="f1_macro", n_jobs=-1
     )
     grid.fit(X_train, y_train)
     end = time.time()
@@ -38,13 +38,15 @@ def optimizar_con_randomsearch(X_train, y_train, X_test, y_test, n_trials, tuned
         param_distributions=tuned_params,
         n_iter=n_trials,
         cv=3,
-        scoring="f1",
+        scoring="f1_macro",
         n_jobs=-1,
     )
     random_search.fit(X_train, y_train)
     end = time.time()
 
     print("✅ Mejores parámetros Random Search:", random_search.best_params_)
+
+    
     return evaluar_modelo(
         "RandomSearch", random_search.best_estimator_,
         X_test, y_test, end - start, random_search.best_params_
