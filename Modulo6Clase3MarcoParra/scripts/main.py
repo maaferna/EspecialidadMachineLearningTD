@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from src.utils import cargar_dataset
 from src.evaluador import pca_no_supervisado, evaluar_knn_con_pca
-from src.visualizador import graficar_pca_3d, graficar_varianza_pca, graficar_heatmap_knn
+from src.visualizador import graficar_pca_2d, graficar_pca_3d, graficar_varianza_pca, graficar_heatmap_knn
 
 def main():
     print("🔹 Iniciando pipeline PCA -> KNN...")
@@ -31,6 +31,13 @@ def main():
     print("Numero optimo PCA:", n_componentes_optimo)
     print("Resultados detallados:")
     print(resultado_pca["resultados"])
+
+    # Aplicar PCA a 2 componentes, òptimo según el análisis
+    pca_2d = PCA(n_components=n_componentes_optimo)
+    X_pca_2d = pca_2d.fit_transform(X)  # O usa X_train si quieres solo entrenamiento
+
+    # Graficar con clases verdaderas (y)
+    graficar_pca_2d(X_pca_2d, y, title="PCA en 2D con clases reales, òptimo 2 componentes")
 
     # Aplicar PCA a 3 componentes
     pca_3d = PCA(n_components=3)

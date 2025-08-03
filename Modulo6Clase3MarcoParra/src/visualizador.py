@@ -97,3 +97,17 @@ def graficar_pca_3d(X_pca, y=None, title="Proyección PCA 3D", output_dir="outpu
     plt.savefig(path)
     plt.close()
     print(f"📊 Gráfico PCA 3D guardado en {path}")
+
+
+
+def graficar_pca_2d(X_pca, y, title="PCA 2D", output_dir="outputs", nombre_archivo="pca_2d.png"):
+    plt.figure(figsize=(8,6))
+    sns.scatterplot(x=X_pca[:,0], y=X_pca[:,1], hue=y, palette="Set1", s=60, edgecolor="k")
+    plt.title(title)
+    plt.xlabel("Componente Principal 1")
+    plt.ylabel("Componente Principal 2")
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/{nombre_archivo}")
+    plt.close()
+    print(f"📊 Gráfico PCA 2D guardado en {output_dir}/{nombre_archivo}")
+
