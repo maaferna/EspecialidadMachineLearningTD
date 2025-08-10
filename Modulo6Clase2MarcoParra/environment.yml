@@ -21,3 +21,4 @@ dependencies:
       - ray[tune]
       - lightgbm
       - catboost
+      - hdbscan
