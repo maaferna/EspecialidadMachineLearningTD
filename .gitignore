@@ -5,3 +5,7 @@
 *.png
 *.pdf
 *.pptx
+
+*.keras
+*/outputs/
+*/outputs_imdb/*
