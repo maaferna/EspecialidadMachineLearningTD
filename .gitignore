@@ -5,7 +5,12 @@
 *.png
 *.pdf
 *.pptx
+*.h5
 
 *.keras
 */outputs/
+*/outputs_credit/*
 */outputs_imdb/*
+*/outputs*
+*.html
+*.json

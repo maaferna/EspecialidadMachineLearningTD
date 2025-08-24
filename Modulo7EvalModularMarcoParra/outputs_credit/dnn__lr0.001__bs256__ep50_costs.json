@@ -1,9 +1,0 @@
-{
-  "TN": 126,
-  "FP": 14,
-  "FN": 32,
-  "TP": 28,
-  "cost_fp": 1.0,
-  "cost_fn": 5.0,
-  "expected_cost": 174.0
-}
