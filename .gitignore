@@ -9,3 +9,5 @@
 *.keras
 */outputs/
 */outputs_imdb/*
+
+*.json
