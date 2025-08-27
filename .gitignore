@@ -12,6 +12,8 @@
 */outputs_credit/*
 */outputs_imdb/*
 */outputs_ae/*
+*/data/*
+*.tgz
 
 *.json
 */outputs*
