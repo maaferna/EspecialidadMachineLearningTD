@@ -1,0 +1,38 @@
+name: especialidadmachinelearning
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Core
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - xgboost
+  - lightgbm
+  - catboost
+  - hdbscan
+  - umap-learn
+
+  # HPO / Experimentation
+  - optuna
+  - scikit-optimize
+  - hyperopt
+  - deap
+  - ray-tune
+
+  # Utils & Dev
+  - nbformat
+  - pytest
+  - kagglehub
+
+  # Cosas que van mejor por pip (TF GPU y extras)
+  - pip:
+      - tensorflow[and-cuda]==2.15.*
+      - shap
+      - lime
