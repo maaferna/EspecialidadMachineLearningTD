@@ -1,0 +1,12 @@
+features:
+  vectorizer: word2vec
+  word2vec:
+    size: 100
+    window: 5
+    min_count: 2
+    sg: 1
+
+model:
+  name: logreg
+  C: 1.0
+  class_weight: balanced

@@ -1,0 +1,12 @@
+features:
+  vectorizer: fasttext
+  fasttext:
+    size: 100
+    window: 5
+    min_count: 2
+    sg: 1
+
+model:
+  name: linear_svm
+  C: 1.0
+  class_weight: balanced

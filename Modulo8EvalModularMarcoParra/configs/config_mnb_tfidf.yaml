@@ -1,0 +1,46 @@
+project:
+  seed: 42
+  output_dir: reports
+  figures_dir: reports/figures
+  logs_dir: reports/logs
+
+labels: [0, 1, 2]
+sensitive_attr: "sexo"
+
+dataset:
+  mode: csv
+  csv_path: data/raw/clinical_notes_labeled.csv
+  text_col: text
+  label_col: label
+  sensitive_col: sexo
+  test_size: 0.3
+  stratify: true
+
+preprocessing:
+  language: es
+  lowercase: true
+  remove_punct: true
+  remove_numbers: true
+  remove_urls: true
+  remove_emails: true
+  stopwords_source: spacy
+  keep_pos: ["NOUN","VERB","ADJ","ADV","PROPN"]
+  tokenizer: spacy
+
+features:
+  vectorizer: tfidf
+  tfidf:
+    max_features: 5000
+    ngram_range: [1,2]
+    min_df: 2
+    max_df: 0.95
+
+model:
+  name: multinomial_nb
+  alpha: 0.5
+
+outputs:
+  model_path: models/artifacts/model.joblib
+  vectorizer_path: models/artifacts/vectorizer.joblib
+  metrics_json: reports/metrics_cls.json
+  confusion_png: reports/figures/confusion_matrix.png

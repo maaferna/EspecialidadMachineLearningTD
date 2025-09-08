@@ -1,0 +1,54 @@
+project:
+  seed: 42
+  output_dir: reports
+  figures_dir: reports/figures
+  logs_dir: reports/logs
+
+
+dataset:
+  mode: download # opciones: download | synthetic
+  url: "" # URL directa a un CSV con columna 'text'. Si vacío, intenta ENV CLINICAL_NOTES_URL; si falla → synthetic
+  text_column: text
+  out_csv: data/raw/clinical_notes.csv
+
+
+preprocessing:
+  language: es # 'es' o 'en'
+  lowercase: true
+  remove_punct: true
+  remove_numbers: true
+  remove_urls: true
+  remove_emails: true
+  stopwords_source: spacy # opciones: spacy | nltk
+  keep_pos: ["NOUN", "VERB", "ADJ", "ADV", "PROPN"] # POS que conserva spaCy
+
+
+nltk:
+  tokenize: punkt # tokenizer NLTK (punkt)
+  normalize: stem # opciones: none | lemma | stem (para español se recomienda 'stem')
+
+
+spacy:
+  model_es: es_core_news_sm
+  model_en: en_core_web_sm
+
+
+vectorizer:
+  type: tfidf
+  max_features: 2000
+  ngram_range: [1, 2]
+  min_df: 1
+  max_df: 0.95
+
+
+visualization:
+  top_k_terms: 10
+  per_doc: true
+
+
+outputs:
+  metrics_json: reports/metrics.json
+  tfidf_spacy_npz: data/processed/tfidf_spacy.npz
+  tfidf_nltk_npz: data/processed/tfidf_nltk.npz
+  vocab_spacy_txt: data/processed/vocab_spacy.txt
+  vocab_nltk_txt: data/processed/vocab_nltk.txt

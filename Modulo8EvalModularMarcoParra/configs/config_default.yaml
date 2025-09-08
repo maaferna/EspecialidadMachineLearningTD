@@ -1,0 +1,84 @@
+project:
+  seed: 42
+  output_dir: reports
+  figures_dir: reports/figures
+  logs_dir: reports/logs
+
+
+# Etiquetas de gravedad
+labels: [0, 1, 2]   # en lugar de ["leve","moderado","severo"]
+
+# Variable sensible (si existe en el dataset). Ej.: sexo, idioma, edad_grupo
+sensitive_attr: "sexo" # dejar vacío si no se auditará por grupo
+
+
+# Dataset
+dataset:
+  mode: csv
+  csv_path: data/raw/clinical_notes_labeled.csv
+  text_col: text
+  label_col: label
+  sensitive_col: sexo
+  test_size: 0.3
+  stratify: true
+
+
+
+preprocessing:
+  language: es
+  lowercase: true
+  remove_punct: true
+  remove_numbers: true
+  remove_urls: true
+  remove_emails: true
+  stopwords_source: spacy # spacy | nltk
+  keep_pos: ["NOUN", "VERB", "ADJ", "ADV", "PROPN"]
+  tokenizer: spacy # spacy | nltk
+  nltk_normalize: stem # none|lemma|stem (solo si tokenizer=nltk)
+
+
+features:
+  vectorizer: tfidf # tfidf
+  tfidf:
+    max_features: 5000
+    ngram_range: [1,2]
+    min_df: 1
+    max_df: 0.95
+
+
+  word2vec:
+    size: 100
+    window: 5
+    min_count: 2
+    sg: 1
+
+  fasttext:
+    size: 100
+    window: 5
+    min_count: 2
+    sg: 1
+
+  transformer_embed:
+    model: sentence-transformers/distiluse-base-multilingual-cased-v2
+    batch_size: 32
+
+model:
+  name: linear_svm # linear_svm | logreg
+  class_weight: balanced # none | balanced
+  C: 1.0
+  resampling: none # none | undersample | oversample
+
+
+training:
+  cv_folds: 5
+  scoring: f1_macro
+
+
+outputs:
+  model_path: models/artifacts/baseline_clf.joblib
+  vectorizer_path: models/artifacts/tfidf_vectorizer.joblib
+  label_encoder_path: models/artifacts/label_encoder.joblib
+  metrics_json: reports/metrics_cls.json
+  fairness_json: reports/fairness/metrics_by_group.json
+  confusion_png: reports/figures/confusion_matrix.png
+  reliability_png: reports/figures/reliability_curve.png

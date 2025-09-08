@@ -1,0 +1,126 @@
+abdominal
+abdominal leve
+agudo
+agudo h
+aire
+ajuste
+ajuste dieta
+alimentario
+alérgica
+alérgica estacional
+analgesia
+analgesia reposo
+antebrazo
+antebrazo contacto
+antecedente
+antecedente asmo
+antihistamínico
+antihistamínico generación
+asmo
+asmo saturación
+brazo
+brazo izquierdo
+cefalea
+cefalea persistente
+conciliación
+conciliación escala
+consulta
+consulta cefalea
+contacto
+contacto irritante
+control
+control ajuste
+dermatitis
+dermatitis pruriginós
+descartar
+descartar intolerancia
+diarrea
+diarrea agudo
+dieta
+dolor
+dolor abdominal
+dolor torácico
+elevado
+elevado higiene
+escala
+escala estrés
+esfuerzo
+esfuerzo analgesia
+esporádico
+esporádico postprandial
+estacional
+estacional indicar
+estrés
+estrés elevado
+fiebre
+generación
+general
+general dolor
+h
+h malestar
+higiene
+higiene sueño
+hiperglicemiar
+hiperglicemiar plan
+indicar
+indicar antihistamínico
+insomnio
+insomnio conciliación
+intolerancia
+intolerancia alimentario
+irradiado
+irradiado brazo
+irritante
+izquierdo
+izquierdo pendiente
+leve
+leve referir
+lumbalgia
+lumbalgia mecánico
+malestar
+malestar general
+mareo
+mareo leve
+mecánico
+mecánico esfuerzo
+nocturno
+nocturno antecedente
+náusea
+náusea esporádico
+opresivo
+opresivo irradiado
+paciente consulta
+paciente dermatitis
+paciente diarrea
+paciente dolor
+paciente hiperglicemiar
+paciente insomnio
+paciente lumbalgia
+paciente náusea
+paciente riniti
+paciente tos
+pendiente
+persistente
+persistente mareo
+plan
+plan control
+postprandial
+postprandial descartar
+pruriginós
+pruriginós antebrazo
+referir
+referir fiebre
+relativo
+reposo
+reposo relativo
+riniti
+riniti alérgica
+saturación
+saturación aire
+seco
+seco nocturno
+sueño
+torácico
+torácico opresivo
+tos
+tos seco

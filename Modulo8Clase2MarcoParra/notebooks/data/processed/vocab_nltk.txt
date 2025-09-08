@@ -1,0 +1,130 @@
+abdominal
+abdominal lev
+agud
+agud h
+air
+ajust
+ajust diet
+alerg
+alerg estacional
+alimentari
+analgesi
+analgesi repos
+antebraz
+antebraz contact
+antecedent
+antecedent asma
+antihistamin
+antihistamin gener
+asma
+asma satur
+ayun
+ayun plan
+braz
+braz izquierd
+cefale
+cefale persistent
+concili
+concili escal
+consult
+consult cefale
+contact
+contact irrit
+control
+control ajust
+dermatitis
+dermatitis prurigin
+descart
+descart intoler
+diarre
+diarre agud
+diet
+dolor
+dolor abdominal
+dolor torac
+ecg
+ecg pendient
+elev
+elev higien
+escal
+escal estres
+esfuerz
+esfuerz analgesi
+esporad
+esporad postprandial
+estacional
+estacional indic
+estres
+estres elev
+fiebr
+gener
+general
+general dolor
+h
+h malest
+higien
+higien sueñ
+hiperglicemi
+hiperglicemi ayun
+indic
+indic antihistamin
+insomni
+insomni concili
+intoler
+intoler alimentari
+irradi
+irradi braz
+irrit
+izquierd
+izquierd ecg
+lev
+lev refier
+lumbalgi
+lumbalgi mecan
+malest
+malest general
+mare
+mare lev
+mecan
+mecan esfuerz
+naus
+naus esporad
+nocturn
+nocturn antecedent
+opres
+opres irradi
+pacient consult
+pacient dermatitis
+pacient diarre
+pacient dolor
+pacient hiperglicemi
+pacient insomni
+pacient lumbalgi
+pacient naus
+pacient rinitis
+pacient tos
+pendient
+persistent
+persistent mare
+plan
+plan control
+postprandial
+postprandial descart
+prurigin
+prurigin antebraz
+refier
+refier fiebr
+relat
+repos
+repos relat
+rinitis
+rinitis alerg
+satur
+satur air
+sec
+sec nocturn
+sueñ
+torac
+torac opres
+tos
+tos sec

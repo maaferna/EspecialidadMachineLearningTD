@@ -1,0 +1,9 @@
+# Solo override de algunas claves
+model:
+  name: logreg
+  C: 2.0
+  class_weight: balanced
+features:
+  tfidf:
+    max_features: 8000
+    ngram_range: [1,2]

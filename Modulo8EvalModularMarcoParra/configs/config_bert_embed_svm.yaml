@@ -1,0 +1,10 @@
+features:
+  vectorizer: transformer_embed
+  transformer_embed:
+    model: sentence-transformers/distiluse-base-multilingual-cased-v2
+    batch_size: 32
+
+model:
+  name: linear_svm
+  C: 1.0
+  class_weight: balanced

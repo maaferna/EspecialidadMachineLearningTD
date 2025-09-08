@@ -7,6 +7,7 @@
 *.pptx
 *.h5
 
+*.~lock*
 *.keras
 */outputs/
 */outputs_credit/*
