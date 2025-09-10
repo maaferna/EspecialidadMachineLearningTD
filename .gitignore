@@ -15,7 +15,9 @@
 */outputs_ae/*
 */data/*
 *.tgz
+*.pkl
 
+*.joblib
 *.json
 */outputs*
 *.html
