@@ -1,0 +1,49 @@
+project:
+  seed: 42
+  output_dir: reports
+  logs_dir: reports/logs
+  figures_dir: reports/figures
+  explain_dir: reports/figures/explainability
+  runs_dir: reports/runs
+
+dataset:
+  # options: huggingface | csv | synthetic
+  source: huggingface
+  # 🤗 datasets: imdb (25k train / 25k test). Para demo tomamos un subset.
+  hf_name: imdb
+  text_col: text
+  label_col: label    # 0=negativo, 1=positivo
+  max_samples_train: 2000   # reduce para demo rápida
+  max_samples_test:  1000
+  csv_path: data/raw/opiniones.csv  # si source=csv
+  simulate_min: 200                 # si source=synthetic
+
+preprocessing:
+  lowercase: true
+  remove_punct: true
+  remove_numbers: false
+  stopwords: english               # simple: 'english' de sklearn
+  ngram_range: [1,2]
+  max_features: 20000
+
+model:
+  # options: logreg | random_forest
+  name: logreg
+  logreg:
+    C: 1.0
+    class_weight: balanced
+    max_iter: 200
+  random_forest:
+    n_estimators: 300
+    max_depth: null
+    class_weight: balanced
+
+training:
+  test_size: 0.2
+  stratify: true
+  scoring: f1
+
+explain:
+  lime_samples: 2
+  shap_samples: 2
+  topk: 10

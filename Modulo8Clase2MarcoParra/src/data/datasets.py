@@ -18,7 +18,27 @@ from src.utils.io import ensure_dir, save_csv
 logger = logging.getLogger(__name__)
 
 
+<<<<<<< HEAD
 DEFAULT_SYNTHETIC_NOTES: List[str] = [
+=======
+<<<<<<< HEAD
+
+
+DEFAULT_SYNTHETIC_NOTES: List[str] = [
+    "Paciente 001: Consulta por cefalea persistente y mareo leve. No refiere fiebre.",
+    "Paciente 002: Diarrea aguda de 24 h, malestar general y dolor abdominal leve.",
+    "Paciente 003: Dolor torácico opresivo, irradiado a brazo izquierdo; ECG pendiente.",
+    "Paciente 004: Tos seca nocturna, antecedente de asma. Saturación 96% al aire.",
+    "Paciente 005: Hiperglicemia en ayuno; plan de control y ajuste de dieta.",
+    "Paciente 006: Lumbalgia mecánica tras esfuerzo; analgesia y reposo relativo.",
+    "Paciente 007: Dermatitis pruriginosa en antebrazos; posible contacto con irritante.",
+    "Paciente 008: Rinitis alérgica estacional; indica antihistamínico de segunda generación.",
+    "Paciente 009: Insomnio de conciliación, escala de estrés elevada; higiene del sueño.",
+    "Paciente 010: Náuseas esporádicas postprandiales; descartar intolerancia alimentaria.",
+    ]
+=======
+DEFAULT_SYNTHETIC_NOTES: List[str] = [
+>>>>>>> 4ff3fe7 (init modlo8 clas3)
 "Paciente 001: Consulta por cefalea persistente y mareo leve. No refiere fiebre.",
 "Paciente 002: Diarrea aguda de 24 h, malestar general y dolor abdominal leve.",
 "Paciente 003: Dolor torácico opresivo, irradiado a brazo izquierdo; ECG pendiente.",
@@ -30,6 +50,10 @@ DEFAULT_SYNTHETIC_NOTES: List[str] = [
 "Paciente 009: Insomnio de conciliación, escala de estrés elevada; higiene del sueño.",
 "Paciente 010: Náuseas esporádicas postprandiales; descartar intolerancia alimentaria.",
 ]
+<<<<<<< HEAD
+=======
+>>>>>>> 7f426e3 (init modlo8 clas3)
+>>>>>>> 4ff3fe7 (init modlo8 clas3)
 
 
 
@@ -44,12 +68,28 @@ def download_csv(url: str, dest_csv: Path, timeout: int = 20) -> pd.DataFrame:
     r.raise_for_status()
     with open(dest_csv, "wb") as f:
         f.write(r.content)
+<<<<<<< HEAD
     df = pd.read_csv(dest_csv)
+=======
+<<<<<<< HEAD
+        df = pd.read_csv(dest_csv)
+=======
+    df = pd.read_csv(dest_csv)
+>>>>>>> 7f426e3 (init modlo8 clas3)
+>>>>>>> 4ff3fe7 (init modlo8 clas3)
     if "text" not in df.columns:
         raise ValueError("El CSV descargado debe contener una columna 'text'.")
     return df
 
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 7f426e3 (init modlo8 clas3)
+>>>>>>> 4ff3fe7 (init modlo8 clas3)
 def generate_synthetic(n: int = 10) -> pd.DataFrame:
     """Genera un DataFrame sintético con una columna 'text'."""
     notes = DEFAULT_SYNTHETIC_NOTES[:n]
