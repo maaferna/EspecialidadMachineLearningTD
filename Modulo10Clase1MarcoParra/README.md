@@ -75,7 +75,7 @@ curl -s -X POST http://127.0.0.1:5000/predict \
 ### Con script de pruebas:
 
 ```
-python -m test_api
+python -m src.test_api
 ```
 
 ---
@@ -96,3 +96,118 @@ zip -r entrega_flask_ml_api.zip .
 * Modelo entrenado: RandomForestClassifier sobre Iris (puede cambiarse en `train_model`).
 * Validación estricta: `features` debe ser una lista numérica con la cantidad correcta de atributos.
 * Respuesta: JSON con clase predicha y, si corresponde, probabilidades.
+
+
+
+## Resultados
+
+### Métricas del modelo
+El modelo RandomForestClassifier entrenado sobre el dataset Iris obtuvo los siguientes resultados en el conjunto de prueba:
+
+- **Accuracy:** 0.90  
+- **Reporte de clasificación:**
+
+| Clase      | Precisión | Recall | F1-score | Soporte |
+|------------|-----------|--------|----------|---------|
+| 0 (setosa) | 1.00      | 1.00   | 1.00     | 10      |
+| 1 (versicolor) | 0.82  | 0.90   | 0.86     | 10      |
+| 2 (virginica) | 0.89   | 0.80   | 0.84     | 10      |
+| **Accuracy**   |       |        | **0.90** | 30      |
+| **Macro avg**  | 0.90  | 0.90   | 0.90     | 30      |
+| **Weighted avg** | 0.90 | 0.90  | 0.90     | 30      |
+
+---
+
+### Resultados en Postman
+
+#### 1. GET `/` (estado de la API)
+![API lista](images/home_200_api_list.png)
+
+#### 2. POST `/predict` (predicción exitosa – 200 OK)
+![Predicción exitosa](images/postman-predict-200.png)
+
+#### 3. GET `/predict-demo` (predicción de ejemplo – 200 OK)
+![Predicción demo](images/postman-predict-demo.png)
+
+#### 4. POST `/predict` con Content-Type incorrecto (415 Unsupported Media Type)
+![Error 415](images/unsupported_415_error.png)
+
+#### 5. POST en endpoint que solo permite GET (405 Method Not Allowed)
+![Error 405](images/405.png)
+
+
+
+
+
+## Evidencia de pruebas con `src.test_api`
+
+Se ejecutó el script de prueba con:
+
+```bash
+python -m src.test_api
+````
+
+### Salida en terminal
+
+```
+GET / → status: 200
+{
+  "feature_names": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
+  ],
+  "message": "API lista",
+  "model": "RandomForestClassifier",
+  "target_names": [
+    "setosa",
+    "versicolor",
+    "virginica"
+  ]
+}
+
+POST /predict #1
+status: 200
+{
+  "prediction": "setosa",
+  "probabilities": [
+    1.0,
+    0.0,
+    0.0
+  ]
+}
+
+POST /predict #2
+status: 200
+{
+  "prediction": "versicolor",
+  "probabilities": [
+    0.0,
+    0.99,
+    0.01
+  ]
+}
+
+POST /predict #3
+status: 400
+{
+  "error": "'features' debe tener exactamente 4 valores para Iris."
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
