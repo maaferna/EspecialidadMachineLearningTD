@@ -15,4 +15,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run ML CI pipeline
-        uses: ./.github/actions/ml-ci    # <- ruta a tu acción compuesta
+        uses: ./.github/actions/ml-ci   # <-- apunta a tu acción compuesta local
