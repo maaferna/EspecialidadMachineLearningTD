@@ -1,0 +1,11 @@
+name: ml-docker-api
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - flask=3.0.0
+  - gunicorn=21.2.0
+  - scikit-learn=1.4.2
+  - joblib=1.3.2
+  - numpy=1.26.4

@@ -29,4 +29,5 @@
 .vscode/
 /.ipynb_checkpoints/
 
-/Modulo10EvaModularMarcoParra/models/modelo.pkl
+Modulo10EvaModularMarcoParra/backend/models/model_meta.joblib
+Modulo10EvaModularMarcoParra/backend/models/modelo.pkl

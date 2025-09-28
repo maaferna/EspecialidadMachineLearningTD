@@ -1,0 +1,36 @@
+# Ignorar directorios de datasets o modelos locales
+data/
+models/
+backend/models/
+
+# Ignorar imágenes y capturas locales
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+
+# Ignorar resultados temporales
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de entorno
+.env
+*.conda
+*.ipynb_checkpoints/
+
+# Archivos de IDEs/editores
+.vscode/
+.idea/
+*.swp
+
+# Archivos de control de versiones
+.git
+.gitignore
+.dockerignore
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
