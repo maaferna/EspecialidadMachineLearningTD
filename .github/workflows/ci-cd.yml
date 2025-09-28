@@ -12,10 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Agrega más subproyectos si los tienes
-        subdir: [ "Modulo10EvaModularMarcoParra" ]
+        subdir: [ "Modulo10EvaModularMarcoParra" ]  # agrega más subproyectos si quieres
 
-    # Todos los comandos se ejecutan dentro de la subcarpeta del subproyecto
     defaults:
       run:
         shell: bash
@@ -26,8 +24,8 @@ jobs:
       packages: write
 
     env:
-      HOST_PORT: 8000           # Puerto del runner para mapear al 5000 del contenedor
-      CONTAINER_NAME: api       # Nombre del contenedor de pruebas API
+      HOST_PORT: 8000
+      CONTAINER_NAME: api
 
     steps:
       - name: Checkout
@@ -54,9 +52,7 @@ jobs:
       - name: Set tags (lowercase repo & subdir)
         id: tags
         run: |
-          # Repositorio + nombre de imagen en minúsculas para GHCR
           IMAGE_BASE_LOWER=$(echo "ghcr.io/${{ github.repository }}/ml-backend-conda" | tr '[:upper:]' '[:lower:]')
-          # Normaliza la subcarpeta a minúsculas y sin espacios/slashes
           SAFE_TAG=$(echo '${{ matrix.subdir }}' | tr '[:upper:]/ ' '[:lower:]--')
 
           echo "image_base=$IMAGE_BASE_LOWER" >> $GITHUB_OUTPUT
@@ -64,33 +60,26 @@ jobs:
           echo "tag_sha=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}" >> $GITHUB_OUTPUT
           echo "tag_latest=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"             >> $GITHUB_OUTPUT
 
-          echo "TAG_SHA=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}"
-          echo "TAG_LATEST=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"
-
       - name: Build Docker image
         run: |
           docker build -t "${{ steps.tags.outputs.tag_sha }}" -t "${{ steps.tags.outputs.tag_latest }}" ./backend
 
-      # === FIX DE PERMISOS (host) + ENTRENAMIENTO COMO ROOT EN EL CONTENEDOR ===
-      - name: Prepare writable model dir (fix perms on runner)
+      - name: Prepare writable model dir (host)
         run: |
-          # Limpia/crea y da permisos amplios para que el contenedor pueda escribir
           rm -rf backend/models
           mkdir -p backend/models
-          chmod -R 777 backend/models
+          # permisos suficientes para montaje; el chmod "fuerte" lo haremos dentro del contenedor
+          chmod 777 backend/models
 
-      - name: Train model (writes to backend/models)
+      - name: Train model (inside container, then fix perms inside container)
         run: |
-          docker run --rm \
-            -u 0:0 \
+          # Ejecuta como root para evitar choques de UID/GID al escribir en el volumen
+          docker run --rm -u 0:0 \
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
-            micromamba run -n ml-docker-api python -u train_model.py
+            /bin/bash -lc 'micromamba run -n ml-docker-api python -u train_model.py && chmod -R a+rwX /app/models && ls -l /app/models'
 
-          # (opcional) Relaja permisos post-entrenamiento
-          chmod -R a+rw backend/models
-
-          echo "== Artifacts =="
+          echo "== Artifacts on host =="
           ls -l backend/models
 
       - name: Run API container
@@ -102,7 +91,6 @@ jobs:
             "${{ steps.tags.outputs.tag_sha }}" \
             micromamba run -n ml-docker-api gunicorn -w 2 -b 0.0.0.0:5000 app:app
 
-          # Espera breve y muestra logs para diagnóstico
           sleep 8
           docker logs --tail=100 "${CONTAINER_NAME}" || true
 
