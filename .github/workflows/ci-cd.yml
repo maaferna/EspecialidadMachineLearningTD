@@ -9,13 +9,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
-    # Lista de subproyectos (carpetas) sobre las que quieres correr el pipeline
     strategy:
       fail-fast: false
       matrix:
         subdir: [ "Modulo10EvaModularMarcoParra" ]  # agrega más: "OtroProyecto", ...
 
-    # Todo se ejecuta dentro de la subcarpeta elegida
     defaults:
       run:
         shell: bash
@@ -26,9 +24,6 @@ jobs:
       packages: write
 
     env:
-      # Nombre base de imagen para GHCR (usa org/repo del repo actual)
-      IMAGE_BASE: ghcr.io/${{ github.repository }}/ml-backend-conda
-      # Puerto host del runner para no chocar con otros jobs
       HOST_PORT: 8000
       CONTAINER_NAME: api
 
@@ -36,12 +31,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Mostrar estructura
+      - name: Install jq (for nicer JSON)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Show tree
         run: |
-          echo "== Subproyecto: ${{ matrix.subdir }} =="
+          echo "== Subproject: ${{ matrix.subdir }} =="
           ls -la
-          echo
-          echo "== Contenido backend =="
+          echo "== backend =="
           ls -la backend
 
       - name: Login to GHCR
@@ -51,16 +48,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set tags
+      - name: Set tags (lowercase repo & subdir)
         id: tags
         run: |
-          # normaliza el nombre de la subcarpeta para el tag
-          SAFE_TAG="$(echo '${{ matrix.subdir }}' | tr '[:upper:]/ ' '[:lower:]--')"
-          echo "safe_tag=$SAFE_TAG" >> $GITHUB_OUTPUT
-          echo "tag_sha=${{ env.IMAGE_BASE }}:${SAFE_TAG}-sha-${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "tag_latest=${{ env.IMAGE_BASE }}:${SAFE_TAG}-latest" >> $GITHUB_OUTPUT
-          echo "TAG_SHA=${{ env.IMAGE_BASE }}:${SAFE_TAG}-sha-${{ github.sha }}"
-          echo "TAG_LATEST=${{ env.IMAGE_BASE }}:${SAFE_TAG}-latest"
+          IMAGE_BASE_LOWER=$(echo "ghcr.io/${{ github.repository }}/ml-backend-conda" | tr '[:upper:]' '[:lower:]')
+          SAFE_TAG=$(echo '${{ matrix.subdir }}' | tr '[:upper:]/ ' '[:lower:]--')
+
+          echo "image_base=$IMAGE_BASE_LOWER"         >> $GITHUB_OUTPUT
+          echo "safe_tag=$SAFE_TAG"                   >> $GITHUB_OUTPUT
+          echo "tag_sha=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}"   >> $GITHUB_OUTPUT
+          echo "tag_latest=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"               >> $GITHUB_OUTPUT
+
+          echo "TAG_SHA=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}"
+          echo "TAG_LATEST=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"
 
       - name: Build Docker image
         run: |
@@ -69,7 +69,6 @@ jobs:
       - name: Train model (writes to backend/models)
         run: |
           mkdir -p backend/models
-          # Nota: el Dockerfile usa micromamba, así que ejecutamos dentro del entorno
           docker run --rm \
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
@@ -84,7 +83,6 @@ jobs:
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
             micromamba run -n ml-docker-api gunicorn -w 2 -b 0.0.0.0:5000 app:app
-          # espera breve y muestra logs
           sleep 8
           docker logs --tail=100 "${CONTAINER_NAME}" || true
 
@@ -92,13 +90,13 @@ jobs:
         run: |
           curl -fsS "http://localhost:${HOST_PORT}/" | jq .
 
-      - name: Smoke test - POST /predict (vector nulo)
+      - name: Smoke test - POST /predict (zero vector)
         run: |
           curl -fsS -X POST "http://localhost:${HOST_PORT}/predict" \
             -H "Content-Type: application/json" \
             -d '{"features":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}' | jq .
 
-      - name: Push image
+      - name: Push image to GHCR
         run: |
           docker push "${{ steps.tags.outputs.tag_sha }}"
           docker push "${{ steps.tags.outputs.tag_latest }}"
@@ -112,7 +110,7 @@ jobs:
             ${{ matrix.subdir }}/backend/models/*.pkl
           if-no-files-found: ignore
 
-      - name: Cleanup containers
+      - name: Cleanup container
         if: always()
         run: |
           docker rm -f "${CONTAINER_NAME}" 2>/dev/null || true
