@@ -12,8 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subdir: [ "Modulo10EvaModularMarcoParra" ]  # agrega más: "OtroProyecto", ...
+        # Agrega más subproyectos si los tienes
+        subdir: [ "Modulo10EvaModularMarcoParra" ]
 
+    # Todos los comandos se ejecutan dentro de la subcarpeta del subproyecto
     defaults:
       run:
         shell: bash
@@ -24,20 +26,21 @@ jobs:
       packages: write
 
     env:
-      HOST_PORT: 8000
-      CONTAINER_NAME: api
+      HOST_PORT: 8000           # Puerto del runner para mapear al 5000 del contenedor
+      CONTAINER_NAME: api       # Nombre del contenedor de pruebas API
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq (for nicer JSON)
+      - name: Install jq (pretty JSON)
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Show tree
         run: |
           echo "== Subproject: ${{ matrix.subdir }} =="
           ls -la
+          echo
           echo "== backend =="
           ls -la backend
 
@@ -51,13 +54,15 @@ jobs:
       - name: Set tags (lowercase repo & subdir)
         id: tags
         run: |
+          # Repositorio + nombre de imagen en minúsculas para GHCR
           IMAGE_BASE_LOWER=$(echo "ghcr.io/${{ github.repository }}/ml-backend-conda" | tr '[:upper:]' '[:lower:]')
+          # Normaliza la subcarpeta a minúsculas y sin espacios/slashes
           SAFE_TAG=$(echo '${{ matrix.subdir }}' | tr '[:upper:]/ ' '[:lower:]--')
 
-          echo "image_base=$IMAGE_BASE_LOWER"         >> $GITHUB_OUTPUT
-          echo "safe_tag=$SAFE_TAG"                   >> $GITHUB_OUTPUT
-          echo "tag_sha=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}"   >> $GITHUB_OUTPUT
-          echo "tag_latest=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"               >> $GITHUB_OUTPUT
+          echo "image_base=$IMAGE_BASE_LOWER" >> $GITHUB_OUTPUT
+          echo "safe_tag=$SAFE_TAG"           >> $GITHUB_OUTPUT
+          echo "tag_sha=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "tag_latest=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"             >> $GITHUB_OUTPUT
 
           echo "TAG_SHA=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}"
           echo "TAG_LATEST=${IMAGE_BASE_LOWER}:${SAFE_TAG}-latest"
@@ -66,14 +71,27 @@ jobs:
         run: |
           docker build -t "${{ steps.tags.outputs.tag_sha }}" -t "${{ steps.tags.outputs.tag_latest }}" ./backend
 
+      # === FIX DE PERMISOS (host) + ENTRENAMIENTO COMO ROOT EN EL CONTENEDOR ===
+      - name: Prepare writable model dir (fix perms on runner)
+        run: |
+          # Limpia/crea y da permisos amplios para que el contenedor pueda escribir
+          rm -rf backend/models
+          mkdir -p backend/models
+          chmod -R 777 backend/models
+
       - name: Train model (writes to backend/models)
         run: |
-          mkdir -p backend/models
           docker run --rm \
+            -u 0:0 \
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
             micromamba run -n ml-docker-api python -u train_model.py
-          ls -lh backend/models
+
+          # (opcional) Relaja permisos post-entrenamiento
+          chmod -R a+rw backend/models
+
+          echo "== Artifacts =="
+          ls -l backend/models
 
       - name: Run API container
         run: |
@@ -83,6 +101,8 @@ jobs:
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
             micromamba run -n ml-docker-api gunicorn -w 2 -b 0.0.0.0:5000 app:app
+
+          # Espera breve y muestra logs para diagnóstico
           sleep 8
           docker logs --tail=100 "${CONTAINER_NAME}" || true
 
