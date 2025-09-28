@@ -34,3 +34,16 @@ __pycache__/
 # Archivos generados por el sistema operativo
 .DS_Store
 Thumbs.db
+
+
+**/__pycache__/
+**/*.pyc
+**/.ipynb_checkpoints
+
+.git
+.gitignore
+.github/
+
+backend/models/*
+backend/static/images/*
+!.dockerignore

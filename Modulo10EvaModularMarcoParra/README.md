@@ -27,16 +27,25 @@ La solución integra:
 
 ```bash
 .
-├── backend/
-│   ├── app.py                  # API Flask (endpoints / y /predict)
-│   ├── train_model.py          # Entrenamiento del modelo
-│   ├── environment.yml         # Dependencias Conda
-│   ├── Dockerfile              # Imagen base (micromamba)
-│   ├── models/                 # Artefactos entrenados (persisten en volumen)
-│   └── static/images/          # Evidencias de Postman y logs
-├── docker-compose.yml          # Orquestación de servicios
-├── README.md                   # Este documento
-````
+mlops-cloud/
+├─ backend/
+│  ├─ app.py                 # Flask API (GET /, POST /predict) con validación y logging
+│  ├─ train_model.py         # entrena y guarda modelo (joblib/pickle)
+│  ├─ environment.yml        # conda env reproducible
+│  ├─ Dockerfile             # imagen única (trainer + api)
+│  ├─ models/                # artefactos del modelo (volumen en host)
+│  └─ static/images/         # capturas (Postman, logs, etc.)
+├─ docker-compose.yml        # servicios: trainer y api (usa volumen backend/models)
+├─ .dockerignore
+├─ .gitignore
+├─ README.md                 # guía completa (resumen, objetivos, instalación, uso, resultados)
+├─ ci/
+│  ├─ test_smoke.py          # smoke test opcional (import Flask app)
+│  └─ postman_collection.json# (opcional) tests de API en Postman
+└─ .github/workflows/
+   └─ ci-cd.yml              # build + test + push a GHCR
+               # Este documento
+```
 
 ---
 

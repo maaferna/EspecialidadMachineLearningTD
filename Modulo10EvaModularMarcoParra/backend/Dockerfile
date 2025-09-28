@@ -11,6 +11,8 @@ SHELL ["micromamba", "run", "-n", "ml-docker-api", "/bin/bash", "-c"]
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} app.py .
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} train_model.py .
 
+ENTRYPOINT ["micromamba", "run", "-n", "ml-docker-api"]
+
 ENV MODEL_DIR=/app/models
 EXPOSE 5000
 # ⬆️ sin ENTRYPOINT (lo controlaremos desde docker-compose)
