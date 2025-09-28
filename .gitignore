@@ -2,7 +2,7 @@
 *.pyc
 *__pycache__
 *.csv
-*.png
+#*.png
 *.pdf
 *.pptx
 *.h5
@@ -28,3 +28,5 @@
 .DS_Store
 .vscode/
 /.ipynb_checkpoints/
+
+/Modulo10EvaModularMarcoParra/models/modelo.pkl
