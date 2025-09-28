@@ -1,0 +1,18 @@
+name: CI/CD (dispatcher)
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  run-ml-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run ML CI pipeline
+        uses: ./.github/actions/ml-ci    # <- ruta a tu acción compuesta

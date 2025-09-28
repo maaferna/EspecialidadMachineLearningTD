@@ -1,59 +1,47 @@
-name: CI-CD
-on:
-  push: { branches: [ "main" ] }
-  pull_request:
+name: ML CI Pipeline
+description: Build, train, run API, smoke tests, push image
+runs:
+  using: "composite"
+  steps:
+    - name: Login to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-jobs:
-  build-test-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    env:
-      IMAGE: ghcr.io/${{ github.repository }}:latest
-    steps:
-      - uses: actions/checkout@v4
+    - name: Build image
+      shell: bash
+      run: docker build -t ml-backend-conda:latest ./backend
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Train model
+      shell: bash
+      run: |
+        mkdir -p backend/models
+        docker run --rm -v "$PWD/backend/models:/app/models" \
+          ml-backend-conda:latest \
+          micromamba run -n ml-docker-api python -u train_model.py
 
-      - name: Build image
-        run: docker build -t $IMAGE ./backend
+    - name: Run API
+      shell: bash
+      run: |
+        docker rm -f api 2>/dev/null || true
+        docker run -d --name api -p 5000:5000 \
+          -v "$PWD/backend/models:/app/models" \
+          ml-backend-conda:latest \
+          micromamba run -n ml-docker-api gunicorn -w 2 -b 0.0.0.0:5000 app:app
+        sleep 10
 
-      - name: Prepare model artifacts dir
-        run: mkdir -p models_ci
+    - name: Smoke tests
+      shell: bash
+      run: |
+        curl -s http://localhost:5000/ | jq .
+        curl -s -X POST http://localhost:5000/predict \
+          -H "Content-Type: application/json" \
+          -d '{"features":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}' | jq .
 
-      - name: Train (generate artifacts)
-        run: |
-          docker run --rm -v $PWD/models_ci:/app/models $IMAGE \
-            python train_model.py
-          ls -la models_ci
-
-      - name: Run API container (detached)
-        run: |
-          docker run -d --name api -p 5000:5000 \
-            -v $PWD/models_ci:/app/models \
-            $IMAGE gunicorn -w 2 -b 0.0.0.0:5000 app:app
-          sleep 3
-          docker ps
-
-      - name: Smoke test GET /
-        run: curl -sSf http://localhost:5000/ | jq .message
-
-      - name: Smoke test POST /predict
-        run: |
-          curl -sSf -X POST http://localhost:5000/predict \
-            -H "Content-Type: application/json" \
-            -d '{"features":[11.85,17.12,76.50,440.6,0.0945,0.0703,0.0401,0.0382,0.1760,0.0598,0.280,1.210,1.590,21.30,0.0065,0.0180,0.0215,0.0102,0.0201,0.0035,13.10,22.40,86.20,520.3,0.1180,0.2150,0.2200,0.0990,0.2850,0.0760]}' \
-            | jq .prediction
-
-      - name: Stop API
-        if: always()
-        run: docker rm -f api || true
-
-      - name: Push image to GHCR
-        run: docker push $IMAGE
+    - name: Push image
+      shell: bash
+      run: |
+        docker tag ml-backend-conda:latest ghcr.io/${{ github.repository }}/ml-backend-conda:latest
+        docker push ghcr.io/${{ github.repository }}/ml-backend-conda:latest
