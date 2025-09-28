@@ -3,6 +3,7 @@ name: Multi-project CI
 on:
   push:
     branches: [ "main" ]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -31,16 +32,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq (pretty JSON)
+      - name: Install helpers
         run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Show tree
-        run: |
-          echo "== Subproject: ${{ matrix.subdir }} =="
-          ls -la
-          echo
-          echo "== backend =="
-          ls -la backend
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -54,7 +47,6 @@ jobs:
         run: |
           IMAGE_BASE_LOWER=$(echo "ghcr.io/${{ github.repository }}/ml-backend-conda" | tr '[:upper:]' '[:lower:]')
           SAFE_TAG=$(echo '${{ matrix.subdir }}' | tr '[:upper:]/ ' '[:lower:]--')
-
           echo "image_base=$IMAGE_BASE_LOWER" >> $GITHUB_OUTPUT
           echo "safe_tag=$SAFE_TAG"           >> $GITHUB_OUTPUT
           echo "tag_sha=${IMAGE_BASE_LOWER}:${SAFE_TAG}-sha-${{ github.sha }}" >> $GITHUB_OUTPUT
@@ -64,21 +56,18 @@ jobs:
         run: |
           docker build -t "${{ steps.tags.outputs.tag_sha }}" -t "${{ steps.tags.outputs.tag_latest }}" ./backend
 
-      - name: Prepare writable model dir (host)
+      - name: Prepare model dir on host
         run: |
           rm -rf backend/models
           mkdir -p backend/models
-          # permisos suficientes para montaje; el chmod "fuerte" lo haremos dentro del contenedor
           chmod 777 backend/models
 
-      - name: Train model (inside container, then fix perms inside container)
+      - name: Train model (inside container & fix perms inside)
         run: |
-          # Ejecuta como root para evitar choques de UID/GID al escribir en el volumen
           docker run --rm -u 0:0 \
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
             /bin/bash -lc 'micromamba run -n ml-docker-api python -u train_model.py && chmod -R a+rwX /app/models && ls -l /app/models'
-
           echo "== Artifacts on host =="
           ls -l backend/models
 
@@ -90,7 +79,6 @@ jobs:
             -v "$PWD/backend/models:/app/models" \
             "${{ steps.tags.outputs.tag_sha }}" \
             micromamba run -n ml-docker-api gunicorn -w 2 -b 0.0.0.0:5000 app:app
-
           sleep 8
           docker logs --tail=100 "${CONTAINER_NAME}" || true
 
@@ -109,14 +97,33 @@ jobs:
           docker push "${{ steps.tags.outputs.tag_sha }}"
           docker push "${{ steps.tags.outputs.tag_latest }}"
 
+      # --- Limpieza de artifacts antiguos (libera cuota) ---
+      - name: Purge old artifacts (keep last 5)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          sudo apt-get install -y jq > /dev/null
+          gh api repos/${{ github.repository }}/actions/artifacts --paginate \
+            | jq -r '.artifacts[] | select(.expired==false) | "\(.id)\t\(.name)\t\(.created_at)"' \
+            | sort -k3 \
+            | head -n -5 \
+            | cut -f1 \
+            | xargs -r -I{} gh api -X DELETE repos/${{ github.repository }}/actions/artifacts/{}
+
+      # --- Subida condicional de artifacts, sin romper build si no hay cuota ---
       - name: Upload trained artifacts (optional)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: models-${{ matrix.subdir }}
           path: |
-            ${{ matrix.subdir }}/backend/models/model*.joblib
-            ${{ matrix.subdir }}/backend/models/*.pkl
+            ${{ matrix.subdir }}/backend/models/model_meta.joblib
+            ${{ matrix.subdir }}/backend/models/modelo.pkl
           if-no-files-found: ignore
+          retention-days: 1
 
       - name: Cleanup container
         if: always()
