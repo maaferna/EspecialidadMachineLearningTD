@@ -1,0 +1,3 @@
+# Notebooks store rendered outputs (base64 images), which inflate language stats.
+# Exclude them so GitHub reports the actual code languages.
+*.ipynb linguist-detectable=false
